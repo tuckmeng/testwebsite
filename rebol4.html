@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Rate Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        input {
+            font-size: 20px;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Currency Rate Converter</h1>
+    <input type="number" id="amount" placeholder="Enter amount in USD" />
+    <button id="convertButton">Convert to Euro</button>
+    <div id="result">Converted Amount: </div>
+
+    <script>
+        document.getElementById('convertButton').addEventListener('click', async function() {
+            const amount = document.getElementById('amount').value;
+            if (!amount) {
+                alert("Please enter an amount");
+                return;
+            }
+
+            // Fetch exchange rate from x-rates.com
+            try {
+                const response = await fetch('https://www.x-rates.com/table/?from=USD&amount=1.00');
+                const text = await response.text();
+
+                // Parse the HTML to find the Euro rate
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const rateElement = doc.querySelector("a[href*='from=USD&to=EUR']");
+                const euroRate = parseFloat(rateElement.textContent.trim());
+
+                // Calculate the converted amount
+                const convertedAmount = (amount * euroRate).toFixed(2);
+                document.getElementById('result').textContent = `Converted Amount: ${convertedAmount} EUR`;
+
+            } catch (error) {
+                console.error('Error fetching the exchange rate:', error);
+                document.getElementById('result').textContent = 'Failed to fetch exchange rates';
+            }
+        });
+    </script>
+
+</body>
+</html>
